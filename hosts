@@ -1,0 +1,15 @@
+  
+#All ios devices
+[ios:children]
+ios_routers
+iol_routers
+
+#all IOS routers
+[ios_routers]
+R2 ansible_host=155.2.2.2
+R3 ansible_host=155.3.3.3
+
+#all IOL routers
+[iol_routers]
+R2 ansible_host=155.2.2.2
+R3 ansible_host=155.3.3.3

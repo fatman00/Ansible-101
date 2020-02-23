@@ -1,0 +1,13 @@
+en
+conf t
+!
+ip domain-name lab.cslab.dk
+!
+crypto key gen rsa gen mod 2048
+!
+username ansi priv 15 password Linux1234
+!
+line vty 0 4
+ login local
+ transport input ssh
+!
