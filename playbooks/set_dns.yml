@@ -1,0 +1,23 @@
+---
+- hosts: all
+  gather_facts: yes
+  connection: local
+
+  vars:
+    dns:
+      - ip name-server 8.8.8.8
+
+  tasks:
+  - name: "GET CONFIG"
+    ios_command:
+      commands:
+        - "show running-config | include ip name"
+    register: get_config
+    
+  - name: RUN "Set DNS server"
+    ios_config:
+      save_when: changed
+      commands:
+        - ip name-server 8.8.8.8
+  
+# Run Me: ansible-playbook -l 'ios' -i hosts -u admin -k -c local  playbooks/set_dns.yml

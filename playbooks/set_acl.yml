@@ -1,0 +1,32 @@
+---
+- hosts: all
+  gather_facts: yes
+  connection: local
+
+  vars:
+    secret:
+      - enable secret
+
+  tasks:
+    
+  - name: configure acl with cleanup
+    register: diff_output
+    ios_config:
+      lines:
+        - 10 permit ip host 192.0.2.1 any log
+        - 20 permit ip host 192.0.2.2 any log
+        - 30 permit ip host 192.0.2.3 any log
+        - 40 permit ip host 192.0.2.4 any log
+        - 50 permit ip host 192.0.2.5 any log
+      parents:
+        "{{ item }}"
+      before: 
+        - "no {{ item }}"
+      match: exact
+    with_items:
+      - ip access-list extended test1
+      - ip access-list extended test2
+      
+  - debug: var=diff_output
+ 
+# Run Me: ansible-playbook -l 'R*' -i hosts -u admin -k -c local  playbooks/get_compliance.yml

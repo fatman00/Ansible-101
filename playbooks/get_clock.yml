@@ -1,0 +1,13 @@
+--- 
+- hosts: all
+  gather_facts: yes
+  connection: local
+
+  tasks:
+  - name: IOS | Show clock
+    ios_command:
+      commands:
+        - show clock
+    register: clock
+
+  - debug: msg="{{ clock.stdout }}"

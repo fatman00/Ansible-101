@@ -1,0 +1,48 @@
+---
+- hosts: all
+  gather_facts: yes
+  connection: local
+
+  vars:
+    timezone: "clock timezone CET 1 0"
+    ntp_source: "ntp source loopback 0"
+    ntp_servers:
+      - ntp server 155.18.18.18
+      - ntp server 8.8.8.8
+
+  tasks:
+  - name: "GET NTP CONFIG"
+    ios_command:
+      commands:
+        - "show running-config | include clock timezone"
+        - "show running-config | include ntp server"
+        - "show running-config | include ntp source"
+    register: get_config
+    
+    
+  - name: "SET TIMEZONE"
+    when: "(timezone is defined) and (timezone != get_config.stdout_lines[0][0])"
+    register: set_timezone
+    ios_config:
+      lines:
+        - "{{ timezone }}"
+  - debug:
+      #msg: "demo"
+      var: get_config.stdout_lines[1]
+    
+  - name: "REMOVE NTP SERVERS"
+    when: "(item not in ntp_servers)"
+    with_items: "{{ get_config.stdout_lines[1] }}"
+    ios_config:
+      lines:
+        - "no {{ item }}"
+        
+  - name: "SET NTP SERVERS"
+    with_items: "{{ ntp_servers }}"
+    when: "(item not in get_config.stdout_lines[1])"
+    ios_config:
+      save_when: changed
+      commands:
+        - "{{ item }}"
+  
+# Run Me: ansible-playbook -l 'ios' -i hosts -u admin -k -c local  playbooks/set_dns.yml
